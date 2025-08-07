@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import { rateLimit } from 'express-rate-limit'
 import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import hpp from 'hpp';
+
 
 dotenv.config();
 const app = express();
@@ -16,6 +19,8 @@ const limiter = rateLimit({
 })
 app.use(helmet());
 app.use('/api',limiter);
+app.use(hpp());
+app.use(mongoSanitize());
 
 app.use(express.json({limit:'10kb'}));
 app.use(express.urlencoded({extended:true,limit:'10kb'}))
