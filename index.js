@@ -6,7 +6,8 @@ import { rateLimit } from 'express-rate-limit'
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
-
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 dotenv.config();
 const app = express();
@@ -21,6 +22,23 @@ app.use(helmet());
 app.use('/api',limiter);
 app.use(hpp());
 app.use(mongoSanitize());
+app.use(cookieParser());
+
+
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+    methods: ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS"],
+    allowedHeaders:[
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "device-remember-token",
+        "Access-Control-Allow-Origin",
+        "Origin",
+        "Accept",
+    ],
+}));
 
 app.use(express.json({limit:'10kb'}));
 app.use(express.urlencoded({extended:true,limit:'10kb'}))
