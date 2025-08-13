@@ -68,7 +68,10 @@ const userSchema = new mongoose.Schema(
             default:Date.now
         }
     },{
-        timestamps:true
+        timestamps:true,
+        toJSON: {virtuals:true},
+        toJSON:{virtuals:true}
+
     }
 )
 
@@ -94,5 +97,18 @@ userSchema.methods.getResetPasswordToken = function(){
                             this.resetPasswordExpire = Date.now() + 20 * 60 * 1000 // 20 minutes
         return resetToken
 }  
+
+
+userSchema.methods.updateLastActive = function(){
+    this.lastActive = Date.now()
+    return this.lastActive({validateBeforeSave: false})
+}
+
+userSchema.virtual('getTotalEnrolledCourses').get(function(){
+    return this.enrolledCourses.length
+})
+
+
+
 
 export const User = mongoose.model('User',userSchema)
