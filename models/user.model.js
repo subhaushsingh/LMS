@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
             trim : true,
             unique : true,
             lowercase: true,
-            match:[/^(?![.-])[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/],'please provide valid email']
+            match:[/^(?![.-])[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/,'please provide valid email']
         },
         password:{
             type:String,
@@ -73,9 +73,26 @@ const userSchema = new mongoose.Schema(
 )
 
 userSchema.pre('save', async function(next){
-    
+    if(!this.isModified("password")){
+        return next();
+    }
     this.password = await bcrypt.hash(this.password,12)
     next();
 })
+
+
+userSchema.methods.comparePassword = async function(enterPassword){
+    return await bcrypt.compare(enterPassword,this.password)
+}
+
+
+userSchema.methods.getResetPasswordToken = function(){
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    this.resetPasswordToken = crypto.createHash('sha512')
+                            .update(resetToken)
+                            .digest('hex')
+                            this.resetPasswordExpire = Date.now() + 20 * 60 * 1000 // 20 minutes
+        return resetToken
+}  
 
 export const User = mongoose.model('User',userSchema)
