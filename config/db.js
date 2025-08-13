@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { PureComponent } from "react";
 
 
 const MAX_RETRIES = 3;
@@ -23,6 +24,7 @@ class DatabaseConnection{
 
         mongoose.connection('disconnected',()=>{
             console.log('MONGODB DISCONNECTED!');
+            this.handleDisconnection() 
         })
     }
 
@@ -78,4 +80,32 @@ class DatabaseConnection{
             this.connect()
         }
     }
+
+
+    async handleAppTermination(){
+        try {
+            await mongoose.connection.close()
+            console.log("MongoDB connection closed through app termination")
+            process.exit(0)
+        } catch (error) {
+            console.error("error during database disconnection",error)
+            process.exit(1)
+        }
+    }
+
+
+    getConnectionStatus(){
+        return{
+        isConnected: this.isConnected,
+        readyState:mongoose.connection.readyState,
+        host: mongoose.connection.host,
+        name: mongoose.connection.name
+        }
+    }
 }
+
+
+const dbConnection = new DatabaseConnection();
+
+export default dbConnection.connect.bind(dbConnection)
+export const getDBStatus = dbConnection.getConnectionStatus.bind(dbConnection)
