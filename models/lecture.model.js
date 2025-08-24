@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 
 const lectureSchema = new mongoose.Schema({
     title:{
@@ -32,5 +32,16 @@ const lectureSchema = new mongoose.Schema({
         type:Number,
         required:[true,'Lecture order is required']
     },
-    
+
+});
+
+lectureSchema.pre('save',function(next){
+    if(this.duration){
+        this.duration=Math.round(this.duration*100)/100;
+    }
+    next();
 })
+
+
+
+export const Lecture = mongoose.model('Lecture',lectureSchema);
