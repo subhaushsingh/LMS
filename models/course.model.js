@@ -71,7 +71,7 @@ const courseSchema = new mongoose.Schema({
 },{
         timestamps:true,
         toJSON: {virtuals:true},
-        toJSON:{virtuals:true}
+        toObject:{virtuals:true}
 
     });
 
@@ -82,8 +82,14 @@ courseSchema.virtual('averageRating').get(function(){
 })
 
 courseSchema.pre('save', function(next){
-
+    if (this.lectures){
+        this.totalLectures = this.lectures.length;
+    }
 
 
     next();
 })
+
+
+
+export const Course = mongoose.model('Course',courseSchema);
